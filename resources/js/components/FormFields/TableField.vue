@@ -1,4 +1,5 @@
 <template>
+
   <DefaultField
     :field="currentField"
     :errors="errors"
@@ -8,6 +9,16 @@
     <template #field>
       <Table :can-delete="field.canDelete" :edit-mode="!field.readonly">
         <div class="bg-white overflow-hidden key-value-items">
+            <TableRow
+                v-for="(row, index) in columnsData"
+                :key="row.id"
+                :ref="row.id"
+                :can-delete="false"
+                :index="index"
+                :read-only="true"
+                :row.sync="row"
+                @remove-row="removeRow"
+            />
           <TableRow
             v-for="(row, index) in theData"
             :key="row.id"
@@ -16,6 +27,7 @@
             :index="index"
             :read-only="field.readonly"
             :row.sync="row"
+            :errors="errors"
             @remove-row="removeRow"
           />
         </div>
@@ -76,24 +88,10 @@ export default {
 
   components: { Table, TableRow },
 
-  data: () => ({ theData: [] }),
+  data: () => ({ columnsData:[], theData: [] }),
 
   mounted() {
-    let valuesArray = Array.isArray(this.field.value) ? this.value : JSON.parse(this.field.value);
-    if (!Array.isArray(valuesArray) || !valuesArray.length) valuesArray = [];
-
-    if(this.field.defaultValues)
-      this.field.defaultValues.forEach((item, index) => {
-        if(!valuesArray[index])
-          valuesArray[index] = item;
-      });
-    else
-      this.field.defaultValues = [];
-
-    this.theData = _.map(valuesArray, cells => ({
-      id: guid(),
-      cells,
-    }));
+    this.handleData()
 
     if (this.theData.length === 0) {
       for (let i = 0; i < (this.defaultAttributes.minRows || 1); i++) {
@@ -215,6 +213,27 @@ export default {
         Object.values(this.$refs).map(ref => autosize(ref[0].$refs.columnFields))[0].slice(-1)[0].select();
       });
     },
+    handleData() {
+      let valuesColumns = Array.isArray(this.field.value.columns) ? this.field.value.columns : JSON.parse(this.field.value.columns);
+      let valuesArray = Array.isArray(this.field.value.rows) ? this.value.rows : JSON.parse(this.field.value.rows);
+
+      if (!Array.isArray(valuesColumns) || !valuesColumns.length) valuesColumns = [];
+      if (!Array.isArray(valuesArray) || !valuesArray.length) valuesArray = [];
+
+      if(this.field.defaultValues)
+        this.field.defaultValues.forEach((item, index) => {
+          if(!valuesArray[index])
+            valuesArray[index] = item;
+        });
+      else
+        this.field.defaultValues = [];
+
+      this.columnsData = [{id:guid(), cells:valuesColumns}]
+      this.theData = _.map(valuesArray, cells => ({
+        id: guid(),
+        cells,
+      }));
+    }
   },
 
   computed: {

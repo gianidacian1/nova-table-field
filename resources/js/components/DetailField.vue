@@ -3,6 +3,7 @@
     <template #value>
       <Table :edit-mode="false" class="overflow-hidden" v-if="theData.length > 0">
         <div class="bg-white overflow-hidden">
+          <TableRow :disabled="true" :key="index" :row="row" v-for="(row, index) in columnsData" />
           <TableRow :disabled="true" :key="index" :row="row" v-for="(row, index) in theData" />
         </div>
       </Table>
@@ -19,13 +20,17 @@ export default {
 
   components: { Table, TableRow },
 
-  data: () => ({ theData: [] }),
+  data: () => ({ columnsData:[], theData: [] }),
 
   created() {
-    let valuesArray = Array.isArray(this.field.value) ? this.field.value : JSON.parse(this.field.value);
-    if (!Array.isArray(valuesArray) || !valuesArray.length) valuesArray = [];
+    let columns = Array.isArray(this.field.value.columns) ? this.field.value.columns : JSON.parse(this.field.value.columns);
+    let rows = Array.isArray(this.field.value.rows) ?this.field.value.rows : JSON.parse(this.field.value.rows);
 
-    this.theData = _.map(valuesArray, cells => ({ cells }));
+    if (!Array.isArray(columns) || !columns.length) columns = [];
+    if (!Array.isArray(rows) || !rows.length) rows = [];
+
+    this.columnsData = [{cells:columns}];
+    this.theData = _.map(rows, (cells) => ({ cells }));
   },
 };
 </script>
