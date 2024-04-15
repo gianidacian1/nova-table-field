@@ -9,16 +9,15 @@
     <template #field>
       <Table :can-delete="field.canDelete" :edit-mode="!field.readonly">
         <div class="bg-white overflow-hidden key-value-items">
-            <TableRow
-                v-for="(row, index) in columnsData"
-                :key="row.id"
-                :ref="row.id"
-                :can-delete="false"
-                :index="index"
-                :read-only="true"
-                :row.sync="row"
-                @remove-row="removeRow"
-            />
+          <TableRow
+              v-for="(row, index) in columnsData"
+              :key="row.id"
+              :ref="row.id"
+              :can-delete="false"
+              :index="index"
+              :read-only="true"
+              :row.sync="row"
+          />
           <TableRow
             v-for="(row, index) in theData"
             :key="row.id"
@@ -213,26 +212,33 @@ export default {
         Object.values(this.$refs).map(ref => autosize(ref[0].$refs.columnFields))[0].slice(-1)[0].select();
       });
     },
-    handleData() {
-      let valuesColumns = Array.isArray(this.field.value.columns) ? this.field.value.columns : JSON.parse(this.field.value.columns);
-      let valuesArray = Array.isArray(this.field.value.rows) ? this.value.rows : JSON.parse(this.field.value.rows);
 
-      if (!Array.isArray(valuesColumns) || !valuesColumns.length) valuesColumns = [];
-      if (!Array.isArray(valuesArray) || !valuesArray.length) valuesArray = [];
+    /**
+     * Handle data
+     */
+    handleData() {
+
+      let columns = Array.isArray(this.field.value.columns) ? this.field.value.columns : JSON.parse(this.field.value.columns);
+      let rows = Array.isArray(this.field.value.rows) ? this.value.rows : JSON.parse(this.field.value.rows);
+
+      if (!Array.isArray(columns) || !columns.length) columns = [];
+      if (!Array.isArray(rows) || !rows.length) rows = [];
 
       if(this.field.defaultValues)
         this.field.defaultValues.forEach((item, index) => {
-          if(!valuesArray[index])
-            valuesArray[index] = item;
+          if(!rows[index])
+            rows[index] = item;
         });
       else
         this.field.defaultValues = [];
 
-      this.columnsData = [{id:guid(), cells:valuesColumns}]
-      this.theData = _.map(valuesArray, cells => ({
+      this.columnsData = [{id:guid(), cells:columns}]
+      this.theData = _.map(rows, cells => ({
         id: guid(),
         cells,
       }));
+
+      this.errors.errors = this.field.withErrors
     }
   },
 

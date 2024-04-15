@@ -1,14 +1,12 @@
 <template>
   <div class="flex items-center key-value-item">
-    <div class="flex flex-grow border-b border-50 key-value-fields" :class="{
-       'row-error' : tableErrors[index],
-    }">
+    <div class="flex flex-grow border-b border-50 key-value-fields" :class="{'row-error' : tableErrors[index]}">
       <div
         :key="`column-${index}`"
         @click="handleColumnFieldFocus(index)"
         class="flex-grow border-l border-50"
         :class="{'index-column': index == 0}"
-        :readonly="index == 0"
+        :aria-readonly="index == 0"
         v-for="(cell, index) in row.cells"
       >
         <textarea
@@ -28,7 +26,7 @@
     </div>
 
     <div class="flex justify-center h-11 absolute " :class="tableErrors[index] ? 'error-message' : ''" v-if="tableErrors[index]">
-        <span class="flex">
+        <span class="flex" @keydown="removeError(index)">
             {{ tableErrors[index] }}
         </span>
     </div>
@@ -89,25 +87,9 @@ export default {
     isEditable() {
       return !this.readOnly && !this.disabled;
     },
-      tableErrors() {
-        let data = this.errors.errors || []
-        let tableErrorFormated = []
-
-        if (data.extracted_tables && data.extracted_tables.length > 0) {
-          const formatErrors = data.extracted_tables[0].split(' ~~~~ ');
-          const regexpSize = /Rij\s(\d+)/;
-
-          formatErrors.forEach(error => {
-            const match = error.match(regexpSize);
-            if (match && match[1]) {
-              const currentIndex = parseInt(match[1]) - 1;
-              tableErrorFormated[currentIndex] = error;
-            }
-          });
-        }
-
-        return tableErrorFormated
-      }
+    tableErrors() {
+      return this.errors.errors ?? []
+    }
   },
 };
 </script>

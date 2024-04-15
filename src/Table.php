@@ -81,6 +81,17 @@ class Table extends Field
     }
 
     /**
+     * Displaying errors based on custom validation rules
+     *
+     * @param  mixed  $errors
+     * @return $this
+     */
+    public function withErrors($errors): static
+    {
+        return $this->withMeta(['withErrors' => $errors]);
+    }
+
+    /**
      * Disable adding new rows and columns.
      *
      * @return $this

@@ -534,24 +534,28 @@ function guid() {
         })[0].slice(-1)[0].select();
       });
     },
+    /**
+     * Handle data
+     */
     handleData: function handleData() {
-      var valuesColumns = Array.isArray(this.field.value.columns) ? this.field.value.columns : JSON.parse(this.field.value.columns);
-      var valuesArray = Array.isArray(this.field.value.rows) ? this.value.rows : JSON.parse(this.field.value.rows);
-      if (!Array.isArray(valuesColumns) || !valuesColumns.length) valuesColumns = [];
-      if (!Array.isArray(valuesArray) || !valuesArray.length) valuesArray = [];
+      var columns = Array.isArray(this.field.value.columns) ? this.field.value.columns : JSON.parse(this.field.value.columns);
+      var rows = Array.isArray(this.field.value.rows) ? this.value.rows : JSON.parse(this.field.value.rows);
+      if (!Array.isArray(columns) || !columns.length) columns = [];
+      if (!Array.isArray(rows) || !rows.length) rows = [];
       if (this.field.defaultValues) this.field.defaultValues.forEach(function (item, index) {
-        if (!valuesArray[index]) valuesArray[index] = item;
+        if (!rows[index]) rows[index] = item;
       });else this.field.defaultValues = [];
       this.columnsData = [{
         id: guid(),
-        cells: valuesColumns
+        cells: columns
       }];
-      this.theData = _.map(valuesArray, function (cells) {
+      this.theData = _.map(rows, function (cells) {
         return {
           id: guid(),
           cells: cells
         };
       });
+      this.errors.errors = this.field.withErrors;
     }
   },
   computed: {
@@ -634,20 +638,8 @@ __webpack_require__.r(__webpack_exports__);
       return !this.readOnly && !this.disabled;
     },
     tableErrors: function tableErrors() {
-      var data = this.errors.errors || [];
-      var tableErrorFormated = [];
-      if (data.extracted_tables && data.extracted_tables.length > 0) {
-        var formatErrors = data.extracted_tables[0].split(' ~~~~ ');
-        var regexpSize = /Rij\s(\d+)/;
-        formatErrors.forEach(function (error) {
-          var match = error.match(regexpSize);
-          if (match && match[1]) {
-            var currentIndex = parseInt(match[1]) - 1;
-            tableErrorFormated[currentIndex] = error;
-          }
-        });
-      }
-      return tableErrorFormated;
+      var _this$errors$errors;
+      return (_this$errors$errors = this.errors.errors) !== null && _this$errors$errors !== void 0 ? _this$errors$errors : [];
     }
   }
 });
@@ -795,9 +787,8 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
               "can-delete": false,
               index: index,
               "read-only": true,
-              row: row,
-              onRemoveRow: $options.removeRow
-            }, null, 8 /* PROPS */, ["index", "row", "onRemoveRow"]);
+              row: row
+            }, null, 8 /* PROPS */, ["index", "row"]);
           }), 128 /* KEYED_FRAGMENT */)), ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)(_ctx.theData, function (row, index) {
             return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createBlock)(_component_TableRow, {
               key: row.id,
@@ -882,12 +873,9 @@ var _withScopeId = function _withScopeId(n) {
 var _hoisted_1 = {
   "class": "flex items-center key-value-item"
 };
-var _hoisted_2 = ["onClick", "readonly"];
+var _hoisted_2 = ["onClick", "aria-readonly"];
 var _hoisted_3 = ["disabled", "dusk", "onFocus", "onUpdate:modelValue"];
 var _hoisted_4 = {
-  "class": "flex"
-};
-var _hoisted_5 = {
   key: 1,
   "class": "flex justify-center h-11 w-11 absolute",
   style: {
@@ -909,7 +897,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["flex-grow border-l border-50", {
         'index-column': index == 0
       }]),
-      readonly: index == 0
+      "aria-readonly": index == 0
     }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)(((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("textarea", {
       "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)([{
         'bg-white': !$options.isEditable,
@@ -930,8 +918,13 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   }), 128 /* KEYED_FRAGMENT */))], 2 /* CLASS */), $options.tableErrors[$props.index] ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
     key: 0,
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["flex justify-center h-11 absolute", $options.tableErrors[$props.index] ? 'error-message' : ''])
-  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", _hoisted_4, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($options.tableErrors[$props.index]), 1 /* TEXT */)], 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $options.isEditable && $props.canDelete ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
-    onClick: _cache[0] || (_cache[0] = function ($event) {
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    "class": "flex",
+    onKeydown: _cache[0] || (_cache[0] = function ($event) {
+      return _ctx.removeError($props.index);
+    })
+  }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($options.tableErrors[$props.index]), 33 /* TEXT, HYDRATE_EVENTS */)], 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $options.isEditable && $props.canDelete ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    onClick: _cache[1] || (_cache[1] = function ($event) {
       return _ctx.$emit('remove-row', $props.row.id);
     }),
     "class": "flex appearance-none cursor-pointer text-70 hover:text-danger active:outline-none active:shadow-outline focus:outline-none focus:shadow-outline",

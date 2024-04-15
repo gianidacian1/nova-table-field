@@ -20,7 +20,7 @@ export default {
 
   components: { Table, TableRow },
 
-  data: () => ({ columnsData:[], theData: [] }),
+  data: () => ({ columnsData:[], theData: []}),
 
   created() {
     let columns = Array.isArray(this.field.value.columns) ? this.field.value.columns : JSON.parse(this.field.value.columns);
